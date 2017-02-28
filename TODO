@@ -1,0 +1,3 @@
+linearRegression/ : Folder is for scripts to get alpha, beta, &gamma from NPB benchmark suites using NPB PERF runs
+
+results/ : Holds info to be parsed by python scripts
