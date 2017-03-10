@@ -58,20 +58,26 @@ if arch == "x86_64":
 	LLCMS = (LLC_LM+LLC_SM+LLC_PM)/TIME
 	
 elif arch == "aarch64":
+	print('Im on aRM!')
 	for line in f:
 	#ARM CacheMiss
 		if "cache-misses" in line:
 			t = line.split()
 			LLC_CM = int(t[0].replace(',',''))
-			print('CACHEMISS (ARM) count:'+str(INSTR_CNT))
+			print('CACHEMISS (ARM) count:'+str(LLC_CM))
 		elif "L1-dcache-load-misses" in line:
 			t = line.split()
 			LLC_L1LM = int(t[0].replace(',',''))
-			print('L1 load-miss count:'+str(INSTR_CNT))
+			print('L1 load-miss count:'+str(LLC_L1LM))
 		elif "L1-dcache-store-misses" in line:
 			t = line.split()
 			LLC_L1SM = int(t[0].replace(',',''))
-			print('L1 store-miss count:'+str(INSTR_CNT))
+			print('L1 store-miss count:'+str(LLC_L1SM))
+		#Grab Time
+		elif "time elapsed" in line:
+			t = line.split()
+			TIME = float(t[0])
+			print('time:'+str(TIME))
 		elif "instructions" in line:
 			t = line.split()
 			INSTR_CNT = int(t[0].replace(',',''))
