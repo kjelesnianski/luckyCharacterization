@@ -27,10 +27,10 @@ TMP=curr.txt
 SUITE=npb
 #CLASS=(A B C)
 #BENCHMARKS=(bt cg dc ep ft is lu mg sp ua)
-#N_THREADS=(1 2 4 6)
+N_THREADS=(1 2 4 6)
 CLASS=(A)
-BENCHMARKS=(cg bt)
-N_THREADS=(6)
+BENCHMARKS=(cg)
+#N_THREADS=(6)
 
 BENCHPATH=$WORKDIR/benchmarks/SNU_NPB-1.0.3/NPB3.3-OMP-C/bin
 
@@ -52,12 +52,12 @@ for class in ${CLASS[*]}; do
 				if [ "$ARCH" == "x86_64" ]
 				then
 					echo "ARCH IS: x86_64"
-					$SCRIPTS/$PERF stat -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
 				elif [ "$ARCH" == "aarch64" ]
 				then
 					echo "ARCH IS: aarch64"
 					#Events specific to XGENE!!!!
-					$SCRIPTS/$PERF stat -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 				else
 					echo "[ERROR]: Unsupported Architecture"
 					exit 1
