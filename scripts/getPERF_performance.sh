@@ -12,9 +12,11 @@
 #LLCMS = LLC misses per second
 #MIPS = Millions of instr per second
 
-#FORMAT IS: BENCHMARK,RUN,LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,total-instructions,time,LLCMS,MIPS
+#FORMAT IS: BENCHMARK,NumThreads,RUN,LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,Cache-miss(ARM),total-instructions,time,LLCMS,MIPS
 
 WORKDIR=/home/bielsk1/___luckyCharacterization
+ARCH=$(uname -m)
+echo "I am $ARCH!"
 
 SCRIPTS=$WORKDIR/scripts
 PERF=perf
@@ -25,10 +27,10 @@ TMP=curr.txt
 SUITE=npb
 #CLASS=(A B C)
 #BENCHMARKS=(bt cg dc ep ft is lu mg sp ua)
-#X86_NUMTHREADS=(1 2 4 6)
+#N_THREADS=(1 2 4 6)
 CLASS=(A)
 BENCHMARKS=(cg bt)
-X86_NUMTHREADS=(6)
+N_THREADS=(6)
 
 BENCHPATH=$WORKDIR/benchmarks/SNU_NPB-1.0.3/NPB3.3-OMP-C/bin
 
@@ -42,19 +44,29 @@ for class in ${CLASS[*]}; do
   rm -rf ${RESULTS}/*.csv
   #touch $log
   for b in ${BENCHMARKS[*]}; do
-    for run in `seq 1 10`; do
-	echo ">Status CLASS:$class, BENCH:$b, RUN:$run"
-
-	#run perf stat
-#if x86
-	$SCRIPTS/$PERF stat -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x 
-#if ARM
-#	$SCRIPTS/$PERF stat -e cache-misses,instructions --output $TMP $BENCHPATH/$b.$class.x 
-    
-	#Parse
-	#Call Python Script actually
-	python parsePerf.py $TMP $b $run
-	
-     done # ITERATIONS
+		for threadnum in ${N_THREADS[*]}; do
+	    for run in `seq 1 10`; do
+				echo ">Status CLASS:$class, BENCH:$b, RUN:$run"
+			
+				#run perf stat
+				if [ "$ARCH" == "x86_64" ]
+				then
+					echo "ARCH IS: x86_64"
+					$SCRIPTS/$PERF stat -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+				elif [ "$ARCH" == "aarch64" ]
+				then
+					echo "ARCH IS: aarch64"
+					#Events specific to XGENE!!!!
+					$SCRIPTS/$PERF stat -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+				else
+					echo "[ERROR]: Unsupported Architecture"
+					exit 1
+				fi
+				#Parse
+				#Call Python Script actually
+				python parsePerf.py $TMP $b $run $threadnum $ARCH
+			done # ITERATIONS
+		done # OMP_NUM_THREADS
   done # done benchmarks
 done # done CLASS
+
