@@ -61,18 +61,22 @@ elif arch == "aarch64":
 	print('Im on aRM!')
 	for line in f:
 	#ARM CacheMiss
-		if "cache-misses" in line:
+	#	if "cache-misses" in line:
+	#		t = line.split()
+	#		LLC_CM = int(t[0].replace(',',''))
+	#		print('CACHEMISS (ARM) count:'+str(LLC_CM))
+	#	elif "L1-dcache-load-misses" in line:
+	#		t = line.split()
+	#		LLC_L1LM = int(t[0].replace(',',''))
+	#		print('L1 load-miss count:'+str(LLC_L1LM))
+	#	elif "L1-dcache-store-misses" in line:
+	#		t = line.split()
+	#		LLC_L1SM = int(t[0].replace(',',''))
+	#		print('L1 store-miss count:'+str(LLC_L1SM))
+		if "r017" in line:
 			t = line.split()
-			LLC_CM = int(t[0].replace(',',''))
-			print('CACHEMISS (ARM) count:'+str(LLC_CM))
-		elif "L1-dcache-load-misses" in line:
-			t = line.split()
-			LLC_L1LM = int(t[0].replace(',',''))
-			print('L1 load-miss count:'+str(LLC_L1LM))
-		elif "L1-dcache-store-misses" in line:
-			t = line.split()
-			LLC_L1SM = int(t[0].replace(',',''))
-			print('L1 store-miss count:'+str(LLC_L1SM))
+			L2D_REFILL = int(t[0].replace(',',''))
+			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
 		#Grab Time
 		elif "time elapsed" in line:
 			t = line.split()
@@ -83,7 +87,7 @@ elif arch == "aarch64":
 			INSTR_CNT = int(t[0].replace(',',''))
 			print('instruction count:'+str(INSTR_CNT))
 	#LLC Calculation ARM		
-	LLCMS = (LLC_CM-LLC_L1LM-LLC_L1SM)/TIME
+	LLCMS = L2D_REFILL/TIME
 #end if
 
 #Format to CSV
@@ -95,7 +99,7 @@ if arch == "x86_64":
 elif arch == "aarch64":
 	filename = '../results/'+bench+'_perfstats_ARM.csv'
 	
-fields = [bench,n_thread,run,LLC_LM,LLC_SM,LLC_PM,LLC_CM,INSTR_CNT,TIME,LLCMS,MIPS]
+fields = [bench,n_thread,run,LLC_LM,LLC_SM,LLC_PM,L2D_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
 with open(filename,'a') as csvv:
 	writer = csv.writer(csvv)
 	writer.writerow(fields)

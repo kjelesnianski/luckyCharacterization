@@ -57,7 +57,8 @@ for class in ${CLASS[*]}; do
 				then
 					echo "ARCH IS: aarch64"
 					#Events specific to XGENE!!!!
-					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e r017,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+				#	OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 				else
 					echo "[ERROR]: Unsupported Architecture"
 					exit 1

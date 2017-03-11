@@ -15,7 +15,7 @@ from sklearn import datasets, linear_model
 csv_files = sorted(glob.glob('../results/*.csv'))
 print(csv_files)
 #Create Series and append all CSV files to the one series
-header = ['Benchmark','Run', 'LLC-load-miss','LLC-store-miss','LLC-prefetch-miss','instructions','time','LLCMS','MIPS']
+header = ['Benchmark','NumThreads','Run', 'LLC-load-miss','LLC-store-miss','LLC-prefetch-miss','L2D-Refill','instructions','time','LLCMS','MIPS']
 
 #iterate and dump contents into series
 curr_series = None
