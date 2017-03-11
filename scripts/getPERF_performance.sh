@@ -41,7 +41,7 @@ for class in ${CLASS[*]}; do
   # create new log file
   log=${RESULTS}/data.${SUITE}.${class}.csv
   # CLEAN DIR
-  rm -rf ${RESULTS}/*.csv
+  #rm -rf ${RESULTS}/*.csv
   #touch $log
   for b in ${BENCHMARKS[*]}; do
 		for threadnum in ${N_THREADS[*]}; do
@@ -52,12 +52,12 @@ for class in ${CLASS[*]}; do
 				if [ "$ARCH" == "x86_64" ]
 				then
 					echo "ARCH IS: x86_64"
-					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
 				elif [ "$ARCH" == "aarch64" ]
 				then
 					echo "ARCH IS: aarch64"
 					#Events specific to XGENE!!!!
-					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 				else
 					echo "[ERROR]: Unsupported Architecture"
 					exit 1
