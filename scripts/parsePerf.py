@@ -8,20 +8,22 @@ import csv
 
 ########## Begin
 f = open(sys.argv[1],'r')
-bench = sys.argv[2]
-run = sys.argv[3]
-n_thread = sys.argv[4]
-arch = sys.argv[5]
+
+run = sys.argv[2]
+n_thread = sys.argv[3]
+bench = sys.argv[4]
+bench_class = sys.argv[5]
+arch = sys.argv[6]
+
 #print(sys.argv[1])
 #print f
 #f.readline()
 LLC_LM=0
 LLC_SM=0
 LLC_PM=0
-
-LLC_CM=0
-LLC_L1LM=0
-LLC_L1SM=0
+L2D_REFILL=0
+TIME=1
+INSTR_CNT=0
 
 filename=None
 field=None
@@ -95,11 +97,11 @@ MIPS = INSTR_CNT/TIME
 print("LLCMS = "+str(LLCMS)+"  MIPS ="+str(MIPS))
 
 if arch == "x86_64":
-	filename = '../results/'+bench+'_perfstats.csv'
+	filename = '../results/'+bench+'_'+bench_class+'_perfstats.csv'
 elif arch == "aarch64":
-	filename = '../results/'+bench+'_perfstats_ARM.csv'
+	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
 	
-fields = [bench,n_thread,run,LLC_LM,LLC_SM,LLC_PM,L2D_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
+fields = [bench,bench_class,n_thread,run,LLC_LM,LLC_SM,LLC_PM,L2D_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
 with open(filename,'a') as csvv:
 	writer = csv.writer(csvv)
 	writer.writerow(fields)

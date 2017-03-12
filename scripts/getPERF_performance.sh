@@ -8,6 +8,7 @@
 # Perf record - performs a sampling recording where those hardware events occur
 # http://developerblog.redhat.com/2014/03/10/determining-whether-an-application-has-poor-cache-performance-2/
 #http://www.bernardi.cloud/2012/08/07/playing-around-with-perf/
+#https://falstaff.agner.ch/2015/10/26/using-the-perf-utility-on-arm/
 
 #LLCMS = LLC misses per second
 #MIPS = Millions of instr per second
@@ -27,10 +28,9 @@ TMP=curr.txt
 SUITE=npb
 #CLASS=(A B C)
 #BENCHMARKS=(bt cg dc ep ft is lu mg sp ua)
-N_THREADS=(1 2 4 6)
-CLASS=(A)
-BENCHMARKS=(cg)
-#N_THREADS=(6)
+N_THREADS=(6 4 2 1)
+CLASS=(A B)
+BENCHMARKS=(bt cg ep ft is lu mg sp) #dc ua
 
 BENCHPATH=$WORKDIR/benchmarks/SNU_NPB-1.0.3/NPB3.3-OMP-C/bin
 
@@ -45,7 +45,7 @@ for class in ${CLASS[*]}; do
   #touch $log
   for b in ${BENCHMARKS[*]}; do
 		for threadnum in ${N_THREADS[*]}; do
-	    for run in `seq 1 10`; do
+	    for run in `seq 1 20`; do
 				echo ">Status CLASS:$class, BENCH:$b, RUN:$run"
 			
 				#run perf stat
@@ -57,6 +57,7 @@ for class in ${CLASS[*]}; do
 				then
 					echo "ARCH IS: aarch64"
 					#Events specific to XGENE!!!!
+					# 0x017 = L2D_CACHE_REFILL
 					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e r017,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 				#	OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 				else
@@ -65,7 +66,7 @@ for class in ${CLASS[*]}; do
 				fi
 				#Parse
 				#Call Python Script actually
-				python parsePerf.py $TMP $b $run $threadnum $ARCH
+				python parsePerf.py $TMP $run $threadnum $b $class $ARCH
 			done # ITERATIONS
 		done # OMP_NUM_THREADS
   done # done benchmarks
