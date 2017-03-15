@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #http://stackoverflow.com/questions/37953148/multiple-linear-regression-scikit-learn-and-statsmodel
 
-#WILL JUST GET LINEAR REGRESSION OF MIPS>>>  MIPS(j,k) = A(j) * MIPS(i,k) + Y(j)
+#WILL JUST GET LINEAR REGRESSION OF LLCMS>>>  LLCMS(j,k) = A(j) * LLCMS(i,k) + Y(j)
 
 # To get plots to show
 #http://stackoverflow.com/questions/14558843/why-matplotlib-does-not-plot
@@ -64,7 +64,7 @@ print(target_series)
 
 
 #Get MIPS ONLY FEATURE (x86)
-feature_X = total_series.loc[:,'MIPS']
+feature_X = total_series.loc[:,'LLCMS']
 #feature_X = total_series.loc[:,['MIPS']]
 print('--------------- FEATURE X ---------------')
 print(feature_X)
@@ -94,7 +94,7 @@ feature_Y = None
 feature_Y_train = None
 feature_Y_test = None
 
-feature_Y = target_series.loc[:,'MIPS']
+feature_Y = target_series.loc[:,'LLCMS']
 print(feature_Y)
 
 #feature_Y_train_raw = feature_Y.sample(frac=.5)
@@ -131,5 +131,5 @@ plt.xticks(())
 plt.yticks(())
 
 #plt.show()
-plt.savefig('MIPS.png')
+plt.savefig('LLCMS_'+b_class+'.png')
 
