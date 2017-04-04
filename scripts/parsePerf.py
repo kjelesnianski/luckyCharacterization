@@ -41,11 +41,6 @@ if arch == "x86_64":
 			t = line.split()
 			LLC_SM = int(t[0].replace(',',''))
 			print('llc_sm:'+str(LLC_SM))
-	#	#Grab LLC-PM
-	#	elif "LLC-prefetch-misses" in line:
-	#		t = line.split()
-	#		LLC_PM = int(t[0].replace(',',''))
-	#		print('llc_pm:'+str(LLC_PM))
 		#Grab Time
 		elif "time elapsed" in line:
 			t = line.split()
@@ -62,32 +57,34 @@ if arch == "x86_64":
 elif arch == "aarch64":
 	print('Im on aRM!')
 	for line in f:
-	#ARM CacheMiss
-	#	if "cache-misses" in line:
-	#		t = line.split()
-	#		LLC_CM = int(t[0].replace(',',''))
-	#		print('CACHEMISS (ARM) count:'+str(LLC_CM))
-	#	elif "L1-dcache-load-misses" in line:
-	#		t = line.split()
-	#		LLC_L1LM = int(t[0].replace(',',''))
-	#		print('L1 load-miss count:'+str(LLC_L1LM))
-	#	elif "L1-dcache-store-misses" in line:
-	#		t = line.split()
-	#		LLC_L1SM = int(t[0].replace(',',''))
-	#		print('L1 store-miss count:'+str(LLC_L1SM))
-		if "r017" in line:
+###############################################################################
+# X-Gene1
+#		if "r017" in line:
+#			t = line.split()
+#			L2D_REFILL = int(t[0].replace(',',''))
+#			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
+#		elif "instructions" in line:
+#			t = line.split()
+#			INSTR_CNT = int(t[0].replace(',',''))
+#			print('instruction count:'+str(INSTR_CNT))
+###############################################################################
+# Cavium
+		if "armv8_cavium_thunder/l2d_cache_refill/" in line:
 			t = line.split()
 			L2D_REFILL = int(t[0].replace(',',''))
 			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
+		elif "armv8_cavium_thunder/inst_retired/" in line:
+			t = line.split()
+			INSTR_CNT = int(t[0].replace(',',''))
+			print('instruction count:'+str(INSTR_CNT))
+###############################################################################
+# Everyone
 		#Grab Time
 		elif "time elapsed" in line:
 			t = line.split()
 			TIME = float(t[0])
 			print('time:'+str(TIME))
-		elif "instructions" in line:
-			t = line.split()
-			INSTR_CNT = int(t[0].replace(',',''))
-			print('instruction count:'+str(INSTR_CNT))
+
 	#LLC Calculation ARM		
 	LLCMS = L2D_REFILL/TIME
 #end if
@@ -99,7 +96,8 @@ print("LLCMS = "+str(LLCMS)+"  MIPS ="+str(MIPS))
 if arch == "x86_64":
 	filename = '../results/'+bench+'_'+bench_class+'_perfstats.csv'
 elif arch == "aarch64":
-	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
+#	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
+	filename = '../results/'+bench+'_'+bench_class+'_perfstats_CAVIUM.csv'
 	
 fields = [bench,bench_class,n_thread,run,LLC_LM,LLC_SM,LLC_PM,L2D_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
 with open(filename,'a') as csvv:
