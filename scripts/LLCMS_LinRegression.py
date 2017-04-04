@@ -22,8 +22,12 @@ b_class = sys.argv[1]
 
 #--------- Format to Panda input ----------------#
 #Grab All CSV files
-csv_files = sorted(glob.glob('../results/*_'+b_class+'_perfstats.csv'))
-csv_files_ARM = sorted(glob.glob('../results/*_'+b_class+'_perfstats_ARM.csv'))
+#Per class
+#csv_files = sorted(glob.glob('../results/*_'+b_class+'_perfstats.csv'))
+#csv_files_ARM = sorted(glob.glob('../results/*_'+b_class+'_perfstats_ARM.csv'))
+#Combined
+csv_files = sorted(glob.glob('../results/*perfstats.csv'))
+csv_files_ARM = sorted(glob.glob('../results/*perfstats_ARM.csv'))
 print('------ X86 Files ------')
 print(csv_files)
 print('------ ARM Files ------')
@@ -79,8 +83,9 @@ print(feature_X)
 feature_X_train_raw = feature_X[::2]
 feature_X_test_raw = feature_X[1::2]
 
-feature_X_train = feature_X_train_raw.reshape(320,1)
-feature_X_test = feature_X_test_raw.reshape(320,1)
+# Num_sample = 320
+feature_X_train = feature_X_train_raw.reshape(682,1)
+feature_X_test = feature_X_test_raw.reshape(682,1)
 
 
 print('--------------- FEATURE X TRAIN ---------------')
@@ -102,8 +107,9 @@ print(feature_Y)
 feature_Y_train_raw = feature_Y[::2]
 feature_Y_test_raw = feature_Y[1::2]
 
-feature_Y_train = feature_Y_train_raw.reshape(320,1)
-feature_Y_test = feature_Y_test_raw.reshape(320,1)
+
+feature_Y_train = feature_Y_train_raw.reshape(682,1)
+feature_Y_test = feature_Y_test_raw.reshape(682,1)
 print('------------------TARGET train----------------------------')
 print(feature_Y_train)
 print('------------------TARGET test----------------------------')
@@ -127,8 +133,11 @@ print('Variance score: %.2f' % m_regr.score(feature_X_test, feature_Y_test))
 plt.scatter(feature_X_test, feature_Y_test, color='black')
 plt.plot(feature_X_test, m_regr.predict(feature_X_test), color='blue', linewidth=3)
 
-plt.xticks(())
-plt.yticks(())
+plt.title('Linear Regression: LLCMS')
+plt.xlabel('LLCMS (x86_64)')
+plt.ylabel('LLCMS (aarch64)')
+plt.figtext(0.6,0.20,'Slope '+str(m_regr.coef_))
+plt.figtext(0.6,0.16,'RValue: '+str(m_regr.score(feature_X_test, feature_Y_test)))
 
 #plt.show()
 plt.savefig('LLCMS_'+b_class+'.png')

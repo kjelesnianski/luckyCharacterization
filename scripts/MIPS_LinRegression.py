@@ -22,8 +22,12 @@ b_class = sys.argv[1]
 
 #--------- Format to Panda input ----------------#
 #Grab All CSV files
-csv_files = sorted(glob.glob('../results/*_'+b_class+'_perfstats.csv'))
-csv_files_ARM = sorted(glob.glob('../results/*_'+b_class+'_perfstats_ARM.csv'))
+#Per Class
+#csv_files = sorted(glob.glob('../results/*_'+b_class+'_perfstats.csv'))
+#csv_files_ARM = sorted(glob.glob('../results/*_'+b_class+'_perfstats_ARM.csv'))
+#Combined Classes
+csv_files = sorted(glob.glob('../results/*perfstats.csv'))
+csv_files_ARM = sorted(glob.glob('../results/*perfstats_ARM.csv'))
 print('------ X86 Files ------')
 print(csv_files)
 print('------ ARM Files ------')
@@ -64,7 +68,8 @@ print(target_series)
 
 
 #Get MIPS ONLY FEATURE (x86)
-feature_X = total_series.loc[:,'MIPS']
+feature_X = total_series.loc[:,'MIPS'].div(1000000)
+
 #feature_X = total_series.loc[:,['MIPS']]
 print('--------------- FEATURE X ---------------')
 print(feature_X)
@@ -79,8 +84,8 @@ print(feature_X)
 feature_X_train_raw = feature_X[::2]
 feature_X_test_raw = feature_X[1::2]
 
-feature_X_train = feature_X_train_raw.reshape(320,1)
-feature_X_test = feature_X_test_raw.reshape(320,1)
+feature_X_train = feature_X_train_raw.reshape(682,1)
+feature_X_test = feature_X_test_raw.reshape(682,1)
 
 
 print('--------------- FEATURE X TRAIN ---------------')
@@ -94,7 +99,7 @@ feature_Y = None
 feature_Y_train = None
 feature_Y_test = None
 
-feature_Y = target_series.loc[:,'MIPS']
+feature_Y = target_series.loc[:,'MIPS'].div(1000000)
 print(feature_Y)
 
 #feature_Y_train_raw = feature_Y.sample(frac=.5)
@@ -102,8 +107,8 @@ print(feature_Y)
 feature_Y_train_raw = feature_Y[::2]
 feature_Y_test_raw = feature_Y[1::2]
 
-feature_Y_train = feature_Y_train_raw.reshape(320,1)
-feature_Y_test = feature_Y_test_raw.reshape(320,1)
+feature_Y_train = feature_Y_train_raw.reshape(682,1)
+feature_Y_test = feature_Y_test_raw.reshape(682,1)
 print('------------------TARGET train----------------------------')
 print(feature_Y_train)
 print('------------------TARGET test----------------------------')
@@ -117,6 +122,7 @@ m_regr.fit(feature_X_train, feature_Y_train)
 
 #Coefficients
 print('Coefficients: \n', m_regr.coef_)
+print('Intercept: \n', m_regr.intercept_)
 #Mean Squared Error
 print("Mean Squared Error: %.2f" % np.mean((m_regr.predict(feature_X_test) - feature_Y_test) ** 2))
 #Explained Variance score: 1 is perfect prediction
@@ -124,12 +130,22 @@ print('Variance score: %.2f' % m_regr.score(feature_X_test, feature_Y_test))
 
 #Plot (But need X11 so do on local computer)
 #
+#fig, ax = plt.subplots()
+
+
 plt.scatter(feature_X_test, feature_Y_test, color='black')
 plt.plot(feature_X_test, m_regr.predict(feature_X_test), color='blue', linewidth=3)
 
-plt.xticks(())
-plt.yticks(())
+#plt.grid()
+
+plt.title('Linear Regression: MIPS')
+plt.xlabel('MIPS (x86)')
+plt.ylabel('MIPS (aarch64)')
+plt.figtext(0.6,0.22,'Slope '+str(m_regr.coef_))
+
+
+
 
 #plt.show()
-plt.savefig('MIPS.png')
+plt.savefig('MIPS_'+b_class+'.png')
 

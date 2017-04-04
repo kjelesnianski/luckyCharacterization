@@ -41,11 +41,11 @@ if arch == "x86_64":
 			t = line.split()
 			LLC_SM = int(t[0].replace(',',''))
 			print('llc_sm:'+str(LLC_SM))
-		#Grab LLC-PM
-		elif "LLC-prefetch-misses" in line:
-			t = line.split()
-			LLC_PM = int(t[0].replace(',',''))
-			print('llc_pm:'+str(LLC_PM))
+	#	#Grab LLC-PM
+	#	elif "LLC-prefetch-misses" in line:
+	#		t = line.split()
+	#		LLC_PM = int(t[0].replace(',',''))
+	#		print('llc_pm:'+str(LLC_PM))
 		#Grab Time
 		elif "time elapsed" in line:
 			t = line.split()
