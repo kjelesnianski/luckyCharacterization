@@ -52,7 +52,7 @@ for class in ${CLASS[*]}; do
 				if [ "$ARCH" == "x86_64" ]
 				then
 					echo "ARCH IS: x86_64"
-					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e LLC-load-misses,LLC-store-misses,LLC-prefetch-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e LLC-load-misses,LLC-store-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
 				elif [ "$ARCH" == "aarch64" ]
 				then
 					echo "ARCH IS: aarch64"
@@ -64,6 +64,10 @@ for class in ${CLASS[*]}; do
 				# Specific to CAVIUM (arm64)
 				#	OMP_NUM_THREADS=$threadnum $PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions,armv8_cavium_thunder/inst_retired/ --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
 					OMP_NUM_THREADS=$threadnum $PERF stat -a -e armv8_cavium_thunder/l2d_cache_refill/,armv8_cavium_thunder/l2i_cache_refill/,armv8_cavium_thunder/l3d_cache_refill/,instructions,armv8_cavium_thunder/inst_retired/ --output $TMP $BENCHPATH/$b.$class.x
+				elif [ "$ARCH" == "ppc64le" ]
+				then
+					echo "ARCH IS: Power PC (ppc64le)"
+					OMP_NUM_THREADS=$threadnum $PERF stat -a -e LLC-load-misses,LLC-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x
 				else
 					echo "[ERROR]: Unsupported Architecture"
 					exit 1

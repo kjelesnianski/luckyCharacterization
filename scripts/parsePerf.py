@@ -82,7 +82,7 @@ elif arch == "aarch64":
 			INSTR_CNT = int(t[0].replace(',',''))
 			print('instruction count:'+str(INSTR_CNT))
 ###############################################################################
-# Everyone
+# Everyone within AARCH64
 		#Grab Time
 		elif "time elapsed" in line:
 			t = line.split()
@@ -92,6 +92,33 @@ elif arch == "aarch64":
 	#LLC Calculation ARM		
 	LLCMS = (L2D_REFILL+L2I_REFILL)/TIME
 #end if
+elif arch == "ppc64le":
+	print('I\'m on Power PC!')
+	for line in f:
+		#Grab LLC-LM
+		if "LLC-load-misses" in line:
+			#print line
+			t = line.split()
+			LLC_LM = int(t[0].replace(',',''))
+			print('llc_lm:'+str(LLC_LM))
+		#Grab LLC-SM
+		elif "LLC-store-misses" in line:
+			t = line.split()
+			LLC_SM = int(t[0].replace(',',''))
+			print('llc_sm:'+str(LLC_SM))
+		#Grab Time
+		elif "time elapsed" in line:
+			t = line.split()
+			TIME = float(t[0])
+			print('time:'+str(TIME))
+		#Grab Instruction Count
+		elif "instructions" in line:
+			t = line.split()
+			INSTR_CNT = int(t[0].replace(',',''))
+			print('instruction count:'+str(INSTR_CNT))
+	#LLC-Calculation
+	LLCMS = (LLC_LM+LLC_SM)/TIME
+
 
 #Format to CSV
 MIPS = INSTR_CNT/TIME
@@ -102,6 +129,12 @@ if arch == "x86_64":
 elif arch == "aarch64":
 #	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
 	filename = '../results/'+bench+'_'+bench_class+'_perfstats_CAVIUM.csv'
+elif arch == "ppc64le":
+	filename = '../results/'+bench+'_'+bench_class+'_perfstats_POWER.csv'
+else
+	print('Should never get here...')
+#end if
+
 	
 fields = [bench,bench_class,n_thread,run,LLC_LM,LLC_SM,L2D_REFILL,L2I_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
 with open(filename,'a') as csvv:
