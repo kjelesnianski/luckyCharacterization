@@ -20,8 +20,8 @@ arch = sys.argv[6]
 #f.readline()
 LLC_LM=0
 LLC_SM=0
-LLC_PM=0
 L2D_REFILL=0
+L2I_REFILL=0
 TIME=1
 INSTR_CNT=0
 
@@ -52,7 +52,7 @@ if arch == "x86_64":
 			INSTR_CNT = int(t[0].replace(',',''))
 			print('instruction count:'+str(INSTR_CNT))
 	#LLC-Calculation
-	LLCMS = (LLC_LM+LLC_SM+LLC_PM)/TIME
+	LLCMS = (LLC_LM+LLC_SM)/TIME
 	
 elif arch == "aarch64":
 	print('Im on aRM!')
@@ -73,6 +73,10 @@ elif arch == "aarch64":
 			t = line.split()
 			L2D_REFILL = int(t[0].replace(',',''))
 			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
+		elif "armv8_cavium_thunder/l2i_cache_refill/" in line:
+			t = line.split()
+			L2I_REFILL = int(t[0].replace(',',''))
+			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
 		elif "armv8_cavium_thunder/inst_retired/" in line:
 			t = line.split()
 			INSTR_CNT = int(t[0].replace(',',''))
@@ -86,7 +90,7 @@ elif arch == "aarch64":
 			print('time:'+str(TIME))
 
 	#LLC Calculation ARM		
-	LLCMS = L2D_REFILL/TIME
+	LLCMS = (L2D_REFILL+L2I_REFILL)/TIME
 #end if
 
 #Format to CSV
@@ -99,7 +103,7 @@ elif arch == "aarch64":
 #	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
 	filename = '../results/'+bench+'_'+bench_class+'_perfstats_CAVIUM.csv'
 	
-fields = [bench,bench_class,n_thread,run,LLC_LM,LLC_SM,LLC_PM,L2D_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
+fields = [bench,bench_class,n_thread,run,LLC_LM,LLC_SM,L2D_REFILL,L2I_REFILL,INSTR_CNT,TIME,LLCMS,MIPS]
 with open(filename,'a') as csvv:
 	writer = csv.writer(csvv)
 	writer.writerow(fields)
