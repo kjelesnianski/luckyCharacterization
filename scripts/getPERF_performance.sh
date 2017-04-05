@@ -15,7 +15,7 @@
 
 #FORMAT IS: BENCHMARK,NumThreads,RUN,LLC-load-misses,LLC-store-misses,CacheD-miss(ARM),CacheI-miss(ARM),total-instructions,time,LLCMS,MIPS
 
-WORKDIR=/home/bielsk1/luckyCharacterization
+WORKDIR=/root/luckyCharacterization
 ARCH=$(uname -m)
 echo "I am $ARCH!"
 
@@ -28,9 +28,9 @@ TMP=curr.txt
 SUITE=npb
 #CLASS=(A B C)
 #BENCHMARKS=(bt cg dc ep ft is lu mg sp ua)
-N_THREADS=(96 48 24 12 6)
+N_THREADS=(8 4)
 CLASS=(A B)
-BENCHMARKS=(bt cg ep ft is lu mg sp ua dc)
+BENCHMARKS=(bt cg ep ft is lu mg sp ua) #dc
 
 BENCHPATH=$WORKDIR/benchmarks/SNU_NPB-1.0.3/NPB3.3-OMP-C/bin
 
@@ -45,25 +45,22 @@ for class in ${CLASS[*]}; do
   #touch $log
   for b in ${BENCHMARKS[*]}; do
 		for threadnum in ${N_THREADS[*]}; do
-	    for run in `seq 1 15`; do
+	    for run in `seq 1 8`; do
 				echo ">Status CLASS:$class, BENCH:$b, RUN:$run"
 			
 				#run perf stat
 				if [ "$ARCH" == "x86_64" ]
 				then
 					echo "ARCH IS: x86_64"
-					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e LLC-load-misses,LLC-store-misses,task-clock,cpu-clock,instructions --output $TMP $BENCHPATH/$b.$class.x
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e LLC-load-misses,LLC-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x
 				elif [ "$ARCH" == "aarch64" ]
 				then
 					echo "ARCH IS: aarch64"
 					#Events specific to XGENE!!!!
 					# 0x017 = L2D_CACHE_REFILL
-				#	OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e r017,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
-				# Specific to x86-64
-				#	OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
+					OMP_NUM_THREADS=$threadnum $SCRIPTS/$PERF stat -a -e r017,instructions --output $TMP $BENCHPATH/$b.$class.x
 				# Specific to CAVIUM (arm64)
-				#	OMP_NUM_THREADS=$threadnum $PERF stat -a -e cache-misses,L1-dcache-load-misses,L1-dcache-store-misses,instructions,armv8_cavium_thunder/inst_retired/ --output $TMP $BENCHPATH/$b.$class.x OMP_NUM_THREADS=$threadnum
-					OMP_NUM_THREADS=$threadnum $PERF stat -a -e armv8_cavium_thunder/l2d_cache_refill/,armv8_cavium_thunder/l2i_cache_refill/,armv8_cavium_thunder/l3d_cache_refill/,instructions,armv8_cavium_thunder/inst_retired/ --output $TMP $BENCHPATH/$b.$class.x
+				#	OMP_NUM_THREADS=$threadnum $PERF stat -a -e armv8_cavium_thunder/l2d_cache_refill/,armv8_cavium_thunder/l2i_cache_refill/,armv8_cavium_thunder/l3d_cache_refill/,instructions,armv8_cavium_thunder/inst_retired/ --output $TMP $BENCHPATH/$b.$class.x
 				elif [ "$ARCH" == "ppc64le" ]
 				then
 					echo "ARCH IS: Power PC (ppc64le)"

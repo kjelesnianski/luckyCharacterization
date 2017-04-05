@@ -59,28 +59,28 @@ elif arch == "aarch64":
 	for line in f:
 ###############################################################################
 # X-Gene1
-#		if "r017" in line:
-#			t = line.split()
-#			L2D_REFILL = int(t[0].replace(',',''))
-#			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
-#		elif "instructions" in line:
-#			t = line.split()
-#			INSTR_CNT = int(t[0].replace(',',''))
-#			print('instruction count:'+str(INSTR_CNT))
-###############################################################################
-# Cavium
-		if "armv8_cavium_thunder/l2d_cache_refill/" in line:
+		if "r017" in line:
 			t = line.split()
 			L2D_REFILL = int(t[0].replace(',',''))
 			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
-		elif "armv8_cavium_thunder/l2i_cache_refill/" in line:
-			t = line.split()
-			L2I_REFILL = int(t[0].replace(',',''))
-			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
-		elif "armv8_cavium_thunder/inst_retired/" in line:
+		elif "instructions" in line:
 			t = line.split()
 			INSTR_CNT = int(t[0].replace(',',''))
 			print('instruction count:'+str(INSTR_CNT))
+###############################################################################
+# Cavium
+#		if "armv8_cavium_thunder/l2d_cache_refill/" in line:
+#			t = line.split()
+#			L2D_REFILL = int(t[0].replace(',',''))
+#			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
+#		elif "armv8_cavium_thunder/l2i_cache_refill/" in line:
+#			t = line.split()
+#			L2I_REFILL = int(t[0].replace(',',''))
+#			print('L2 DCache Refill (miss):'+str(L2D_REFILL))
+#		elif "armv8_cavium_thunder/inst_retired/" in line:
+#			t = line.split()
+#			INSTR_CNT = int(t[0].replace(',',''))
+#			print('instruction count:'+str(INSTR_CNT))
 ###############################################################################
 # Everyone within AARCH64
 		#Grab Time
@@ -128,11 +128,10 @@ if arch == "x86_64":
 	filename = '../results/'+bench+'_'+bench_class+'_perfstats.csv'
 elif arch == "aarch64":
 #	filename = '../results/'+bench+'_'+bench_class+'_perfstats_ARM.csv'
-	filename = '../results/'+bench+'_'+bench_class+'_perfstats_CAVIUM.csv'
+#	filename = '../results/'+bench+'_'+bench_class+'_perfstats_CAVIUM.csv'
+	filename = '../results/'+bench+'_'+bench_class+'_perfstats_XGENE2.csv'
 elif arch == "ppc64le":
 	filename = '../results/'+bench+'_'+bench_class+'_perfstats_POWER.csv'
-else
-	print('Should never get here...')
 #end if
 
 	
