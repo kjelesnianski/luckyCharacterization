@@ -1,1 +1,3 @@
 benchmarks/
+results/*.csv
+scripts/curr.txt
