@@ -1,0 +1,27 @@
+Scheduler 3.12 Kernel Relevant Files
+where "LINUX" is the base directory of a given kernel version Linux source
+
+>>>Configuration Options
+$ LINUX/arch/x86/Kconfig
+>>>Add EXTRAVERION for easy identification
+$ LINUX/Makefile
+
+>>>Define New Scheduling Macro
+$ LINUX/include/linux/sched.h
+(Also added on target computer FS on Ubuntu 14.04)
+$ /usr/include/x86_64-linux-gnu/bits/sched.h
+
+>>>Define new task structs
+$ LINUX/include/linux/sched.h
+
+>>>Add new task structs to task_struct
+$ LINUX/kernel/core.c
+
+>>>Define Run Queue
+$ LINUX/kernel/sched/sched.h
+
+>>>Create New Scheduling Class
+$ LINUX/kernel/sched/kris.c
+
+>>>Add System Log for new Scheduling Class
+$ LINUX/fs/proc/proc_kris.c
