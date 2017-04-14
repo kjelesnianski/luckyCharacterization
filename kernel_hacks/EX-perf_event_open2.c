@@ -2,6 +2,7 @@
  *
  * Example from 
  * http://man7.org/linux/man-pages/man2/perf_event_open.2.html
+ * http://simplestcodings.blogspot.com/2010/08/ipc-message-queue-implementation-in-c.html
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +16,6 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #define MAX_SIZE 40
-
 
 static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
 		int cpu, int group_fd, unsigned long flags){
