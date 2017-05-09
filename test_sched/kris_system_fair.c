@@ -8,24 +8,27 @@
 #include <string.h>
 #include <time.h>
 
-#define  BUF_LEN	200
+#define  BUF_LEN	2000
 #define  KRIS_TASKS_NUM	10
 
 /* Struct Definition */
 struct kris_tasks_config {
 	int pid;
-	unsigned long long tickets;
-	double min_exec;
+//	unsigned long long tickets;
+//	double min_exec;
 	int max_exec;
-	double min_inter_arrival;
-	double max_inter_arrival;
-	double min_offset;
-	double max_offset;
+//	double min_inter_arrival;
+//	double max_inter_arrival;
+//	double min_offset;
+//	double max_offset;
+
+	float LLCMS;
+	float MIPS;
 };
 
 //GLOBALS
 pid_t kris_tasks_pid [KRIS_TASKS_NUM];
-int kris_tasks_num=0;
+int kris_tasks_num=10;
 
 /*****************************************************************************/
 /*  Helper Functions for "Kris_tasks_config" Array                           */
@@ -35,19 +38,15 @@ int kris_tasks_num=0;
 void print_kris_tasks_config(struct kris_tasks_config *tasks, int num)
 {
 	int i;
-	printf("\nKRIS TASKS CONFIG\n");
-	printf("pid\ttickets\n");
-	printf("pid\tmin_c\tmax_c\tmin_t\tmax_t\tticket\tmin_o\tmax_o\n");
+	printf("\nBIAS TASKS CONFIG\n");
+	printf("pid\ttmax\tLLCMS\tMIPS\n");
+//	printf("pid\tmin_c\tmax_c\tmin_t\tmax_t\tticket\tmin_o\tmax_o\n");
 	for(i=0;i<num;i++){
-		printf("%d\t%f\t%f\t%f\t%f\t%llu\t%f\t%f\n",
+		printf("%d\t%d\t%f\t%f\n",
 		tasks[i].pid,
-		tasks[i].tickets,
-		tasks[i].min_exec,
 		tasks[i].max_exec,
-		tasks[i].min_inter_arrival,
-		tasks[i].max_inter_arrival,
-		tasks[i].min_offset,
-		tasks[i].max_offset
+		tasks[i].LLCMS,
+		tasks[i].MIPS
 		);
 	}
 }
@@ -58,44 +57,21 @@ void clear_kris_tasks_config_info(struct kris_tasks_config *tasks, int num)
 	int i;	
 	for(i=0;i<num;i++){
 		tasks[i].pid=0;
-		tasks[i].min_exec=0;
 		tasks[i].max_exec=0;
-		tasks[i].min_inter_arrival=0;
-		tasks[i].max_inter_arrival=0;
-		tasks[i].tickets=0;
-		tasks[i].min_offset=0;
-		tasks[i].max_offset=0;
+		tasks[i].LLCMS=0;
+		tasks[i].MIPS=0;
 	}
 }
 
-void get_kris_task_config_info(char * str, struct kris_tasks_config *tasks,int *n)
-{
-	char *s ,*s1;
-	int i=0;
-	s = s1=str;
-	while(i<3){
-		if(*s=='\t'){
-			*s='\0';
-			switch(i){
-				case 0:
-					tasks[*n].pid = atoi(s1);
-					s1=s+1;
-					i++;
-				break;
-				case 1:
-					tasks[*n].tickets = atoll(s1);
-					s1=s+1;
-					i++;
-				break;
-				case 2:
-					tasks[*n].max_exec = atoi(s1);
-					s1=s+1;
-					i++;
-				break;
-			}
-		}
-		s++;
-	}
+/* get_kris_task_config_info
+ * Input file is in the following format:
+ * 
+ * PID     Max_Ex            LLCMS     MIPS (Title Line 1)
+ * pid TAB Max_execution TAB LLCMS TAB MIPS \n
+ *
+ */
+void get_kris_task_config_info(char * str, struct kris_tasks_config *tasks,int *n){
+	sscanf(str,"%d\t%d\t%f\t%f\n",&tasks[*n].pid,&tasks[*n].max_exec,&tasks[*n].LLCMS,&tasks[*n].MIPS);
 	(*n)++;
 }
 
@@ -108,7 +84,7 @@ void get_kris_tasks_config_info(char *file, int *duration, struct kris_tasks_con
 	buffer[0]='\0';
 	while( (fgets(buffer, BUF_LEN, fd))!=NULL) {
 		if(strlen(buffer)>1){
-			printf("%s\n", buffer);
+			printf("Buffer:[%s]\n", buffer);
 			switch(count){
 				case 0:
 					*duration=get_int_val(buffer);
@@ -178,7 +154,7 @@ int main(int argc, char *argv[])
 	//Reset task config array
 	clear_kris_tasks_config_info(kris_tasks_config, KRIS_TASKS_NUM);
 	//Read task Config options into "Kris_tasks_config" array
- 	get_kris_tasks_config_info(argv[1],&duration,kris_tasks_config,&kris_tasks_num);
+ 	get_kris_tasks_config_info( argv[1], &duration, kris_tasks_config, &kris_tasks_num);
 
 	param.sched_priority=99;
 /*This is the Host Guardian (Ruling) Thread intiating all other sub-tasks.
@@ -190,12 +166,12 @@ int main(int argc, char *argv[])
 */
 	sched_setscheduler( 0, SCHED_FIFO, (struct sched_param *)&param );
 
-	//Initialize Simulation Values
+/*	//Initialize Simulation Values
 	sim_time.it_interval.tv_sec = 0;
 	sim_time.it_interval.tv_usec = 0;
 	sim_time.it_value.tv_sec = duration;
 	sim_time.it_value.tv_usec = 0;
-
+*/
 	//Initialize Signal to kill all sub-tasks once simulation is finished
 	signal(SIGALRM, end_simulation);
 	//??
@@ -205,15 +181,16 @@ int main(int argc, char *argv[])
 	for(i=0;i<kris_tasks_num;i++){
 		strcpy(tmp[0],"kris_task");
 		sprintf(tmp[1],"%d",kris_tasks_config[i].pid);
-		sprintf(tmp[2],"%llu",kris_tasks_config[i].tickets);
-		sprintf(tmp[3],"%d",kris_tasks_config[i].max_exec);
-		sprintf(tmp[4],"%f",kris_tasks_config[i].min_inter_arrival);
-		sprintf(tmp[5],"%f",kris_tasks_config[i].max_inter_arrival);
-		sprintf(tmp[6],"%f",kris_tasks_config[i].min_offset);
-		sprintf(tmp[7],"%f",kris_tasks_config[i].max_offset);
-		sprintf(tmp[8],"%ld", 0);
-		num_options=9;
+		sprintf(tmp[2],"%d",kris_tasks_config[i].max_exec);
+		sprintf(tmp[3],"%f",kris_tasks_config[i].LLCMS);
+		sprintf(tmp[4],"%f",kris_tasks_config[i].MIPS);
+		sprintf(tmp[5],"%d", 0);
+		num_options=6;
 		printf("transforming\n");
+		for( k = 0 ; k < num_options ; k++ ){
+			printf("%s ",tmp[k]);
+		}
+		printf("\n");
 		//Transform 2D char array to 1D char*
 		for( k = 0 ; k < num_options ; k++ ){
 			parg[k]=tmp[k];
@@ -229,7 +206,6 @@ int main(int argc, char *argv[])
 		if(kris_tasks_pid[i]==0){
 			execv("./kris_task",parg);
 			perror("Error: execv\n");
-			printf("hello\n");
 			exit(0);
 		}
 		printf("about to sleep 1\n");
