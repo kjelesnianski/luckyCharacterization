@@ -138,17 +138,22 @@ int main(int argc, char** argv)
 		);
 
 
-	param.sched_priority=atoi(argv[2]);
+	//param.sched_priority=atoi(argv[2]);
+	param.sched_priority = 99;
+	param.llcms = argv[3];
+	param.mips = argv[4];
+
 	max_exec_time=atoi(argv[2]);
-	printf("sched_priority:%d\n",param.sched_priority);
+	printf("sched_priority:%d llc:%d M:%d\n",param.sched_priority, param.llcms, param.mips);
 
 	signal(SIGUSR1, do_work);
 	signal(SIGUSR2, end_task);
 
-	print_task_param(&param);
+//	print_task_param(&param);
 
-	if( sched_setscheduler( 0, SCHED_B2BIAS, (struct sched_param *)&param ) ==-1 ){
+	if( sched_setscheduler( 0, SCHED_B2BIAS, &param ) != 0 ){
 		perror("ERROR");
+		exit(0);
 	}
 
 	//kill(atoi(argv[4]),SIGUSR2);
