@@ -61,6 +61,11 @@ Calculate
 
 	> Energy Efficiency Ratio (!!! MAIN ENGINE !!!)
 		
+To work within a Virtual Machine:
+$ sudo apt-get install virtualbox
 
+This shows you how to install Ubuntu on Oracle VirtualBox:
+https://brb.nci.nih.gov/bdge/installUbuntu.html
 
-
+NOTE: Will need an ISO file for Ubuntu 14.04.5 LTS (x86\_64)
+http://releases.ubuntu.com/14.04/
