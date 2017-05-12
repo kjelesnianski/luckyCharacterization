@@ -29,22 +29,28 @@ static void timer_cleanup(void);
 static enum hrtimer_restart timer_function(struct hrtimer * timer);
 
 static int __init itrpt_init(void){
+	printk("Num online cpus: %d\n",num_online_cpus());
+	printk("Num possible cpus: %d\n",num_possible_cpus());
+	printk("Num present cpus: %d\n",num_present_cpus());
+	printk("Num active cpus: %d\n",num_active_cpus());
 
-	_init();
+//	timer_init();
+	return 0;
 }
 
 static void __exit itrpt_exit(void){
-	timer_cleanup();
+//	timer_cleanup();
 }
 
 /*****************************************************************************/
 /* Helper Funcs                                                              */
 /*****************************************************************************/
-static void timer _init(void){
-	kt_period = ktime_set(0, 104167); //seconds, nanosec
-	htimer_init( &htimer, CLOCK_REALTIME, HRTIMER_MODE_REL);
+static void timer_init(void){
+/*	kt_period = ktime_set(0, 104167); //seconds, nanosec
+	hrtimer_init( &htimer, CLOCK_REALTIME, HRTIMER_MODE_REL);
 	htimer.function = timer_function;
 	htimer.start( &htimer, kt_period, HRTIMER_MODE_REL);
+*/	
 }
 
 static void timer_cleanup(void){
@@ -56,7 +62,7 @@ static enum hrtimer_restart timer_function(struct hrtimer * timer){
 	// @Do your work here.
 	
 
-	hrtimer_forward_now(timer, kt_periode);
+	hrtimer_forward_now(timer, kt_period);
 	return HRTIMER_RESTART;
 }
 
