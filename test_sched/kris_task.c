@@ -1,15 +1,18 @@
 #include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <stdlib.h>
-#include <sched.h>
 #include <signal.h>
 #include <stdio.h>
 #include <time.h>
+
+#include <sched.h>
 
 // !!!!!! This value is CPU-dependent !!!!!!
 
 //#define LOOP_ITERATIONS_PER_MILLISEC 155000
 
-#define LOOP_ITERATIONS_PER_MILLISEC 1782
+#define LOOP_ITERATIONS_PER_MILLISEC 1782500
 //#define LOOP_ITERATIONS_PER_MILLISEC 178250
 //#define LOOP_ITERATIONS_PER_MILLISEC 193750
 
@@ -37,9 +40,11 @@ void burn_1millisecs() {
 }
 
 void burn_cpu(long milliseconds){
+
 	long i;
 	for(i=0; i<milliseconds; i++)
 		burn_1millisecs();
+
 }
 
 void clear_sched_param_t(struct sched_param *param)
@@ -97,9 +102,9 @@ void start_task(int s)
 
 void do_work(int s)
 {
-	printf("Started %s\n",__func__);
-	clock_t start, end;
-	int start_time, end_time;
+	printf(">> [%s] Started in PID:%d\n",__func__,getpid());
+	//clock_t start, end;
+	//int start_time, end_time;
 	//printf("Task(%d) do_work()\n", kris_id);
     
     //start = clock();
@@ -107,27 +112,33 @@ void do_work(int s)
 	burn_cpu(max_exec_time * MILLISEC);
     //end_time = (int)time(NULL);
 	//end = clock();
-    //printf("Jack: lot_id %d execution time %d\n", kris_id, end_time - start_time); 
+	printf(">>EXIT Jack: lot_id %d execution time\n",getpid());
+	// %d\n", kris_id, end_time - start_time); 
 	exit(0);
 }
 
+#if 0
 void end_task(int s)
 {
 	printf("\nTask(%d) has finished on CORE:%d\n",kris_id,sched_getcpu());
 	
 	exit(0);
 }
+#endif
 
 int main(int argc, char** argv) 
 {
-	int i;
+	printf("hello\n");
+	//sleep(1);
+	
+//	int i;
 	struct sched_param param;
 
 	//PID of current forked child	
 	kris_id = getpid();
 	clear_sched_param_t(&param);
 
-	        printf("\nKRIS TASKS CONFIG %d\n",kris_id);
+	        printf("\nKRIS TASKS CONFIG %d, pid:%d\n",kris_id,getpid());
         printf("name\t\tpid\tmax_ex\tLLCMS\tMIPS\n");
 	printf("%s\t%s\t%s\t%s\t%s\n",
 		argv[0], 
@@ -140,14 +151,17 @@ int main(int argc, char** argv)
 
 	//param.sched_priority=atoi(argv[2]);
 	param.sched_priority = 99;
+/*
 	param.llcms = argv[3];
 	param.mips = argv[4];
+*/
 
 	max_exec_time=atoi(argv[2]);
-	printf("sched_priority:%d llc:%d M:%d\n",param.sched_priority, param.llcms, param.mips);
+	printf("sched_priority:%d ", param.sched_priority);
+	//printf("sched_priority:%d llc:%d M:%d\n", param.sched_priority, (long)param.llcms, (long)param.mips);
 
 	signal(SIGUSR1, do_work);
-	signal(SIGUSR2, end_task);
+	//signal(SIGUSR2, end_task);
 
 //	print_task_param(&param);
 

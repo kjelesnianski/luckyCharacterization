@@ -24,12 +24,18 @@ kris_task: kris_task.o
 	gcc kris_task.o -o kris_task
 
 ######### Automated Runs ######################################################
-#test4:
-#	sudo ./system simple_4bias
-#
-#test6:
-#	sudo ./system simple_6bias
-#
+test2:
+	sudo ./system simple_2bias
+
+test3:
+	sudo ./system simple_3bias
+
+test4:
+	sudo ./system simple_4bias
+
+test6:
+	sudo ./system simple_6bias
+
 ######### Clearn ##############################################################
 clean:
 	rm -rf *.o system kris_task

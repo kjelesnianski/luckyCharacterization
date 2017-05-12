@@ -28,7 +28,7 @@ struct kris_tasks_config {
 
 //GLOBALS
 pid_t kris_tasks_pid [KRIS_TASKS_NUM];
-int kris_tasks_num=10;
+int kris_tasks_num=3;
 
 /*****************************************************************************/
 /*  Helper Functions for "Kris_tasks_config" Array                           */
@@ -84,7 +84,7 @@ void get_kris_tasks_config_info(char *file, int *duration, struct kris_tasks_con
 	buffer[0]='\0';
 	while( (fgets(buffer, BUF_LEN, fd))!=NULL) {
 		if(strlen(buffer)>1){
-			printf("Buffer:[%s]\n", buffer);
+			printf("Buffer:[%s", buffer);
 			switch(count){
 				case 0:
 					*duration=get_int_val(buffer);
@@ -97,17 +97,26 @@ void get_kris_tasks_config_info(char *file, int *duration, struct kris_tasks_con
 		buffer[0]='\0';
 	}
 	fclose(fd);
+
+	//Generate a little space between buffer and starting of children
+	printf("\n\n");
 }
 
 void start_simulation()
 {
 	int i;
 	printf("I will send a SIGUSR1 signal to start all tasks\n");
-	for(i=0;i<kris_tasks_num;i++){
+	//for(i=0;i<kris_tasks_num;i++){
+	for(i=0;i<3;i++){
+		printf("Sending to PID:%d\n",kris_tasks_pid[i]);
 		kill(kris_tasks_pid[i],SIGUSR1);
+		printf("AFTER KIL KIL PID:%d\n",kris_tasks_pid[i]);
+		//sleep(10);
+		sleep(2);
 	}
 }
 
+#if 0
 void end_simulation(int signal)
 {
 	int i;
@@ -116,6 +125,7 @@ void end_simulation(int signal)
 		kill(kris_tasks_pid[i],SIGUSR2);
 	}
 }
+#endif
 
 void help(char* name)
 {
@@ -156,14 +166,13 @@ int main(int argc, char *argv[])
 	//Read task Config options into "Kris_tasks_config" array
  	get_kris_tasks_config_info( argv[1], &duration, kris_tasks_config, &kris_tasks_num);
 
-	param.sched_priority=99;
 /*This is the Host Guardian (Ruling) Thread intiating all other sub-tasks.
   For this reason this thread should have the highest priority over all the 
   other tasks on the machine.
-  1. So it is not interrupted by the new "custom" scheduling policy
+  1. So it is NOT interrupted by the new "custom" scheduling policy
   2. So that it can inject more tasks into the runqueue while earlier sub-
-	tasks are still running.
-*/
+	tasks are still running. */
+	param.sched_priority=99;
 	sched_setscheduler( 0, SCHED_FIFO, (struct sched_param *)&param );
 
 /*	//Initialize Simulation Values
@@ -172,8 +181,8 @@ int main(int argc, char *argv[])
 	sim_time.it_value.tv_sec = duration;
 	sim_time.it_value.tv_usec = 0;
 */
-	//Initialize Signal to kill all sub-tasks once simulation is finished
-	signal(SIGALRM, end_simulation);
+	//registering Signal to kill all sub-tasks once simulation is finished
+	//signal(SIGALRM, end_simulation);
 	//??
 	setitimer(ITIMER_REAL, &sim_time, NULL);
 
@@ -186,7 +195,7 @@ int main(int argc, char *argv[])
 		sprintf(tmp[4],"%f",kris_tasks_config[i].MIPS);
 		sprintf(tmp[5],"%d", 0);
 		num_options=6;
-		printf("transforming\n");
+		//printf("transforming\n");
 		for( k = 0 ; k < num_options ; k++ ){
 			printf("%s ",tmp[k]);
 		}
@@ -197,8 +206,11 @@ int main(int argc, char *argv[])
 		}
 		//Last task is set to NULL to signal the end
 		parg[k]=NULL;
-		
-		print_kris_tasks_config(kris_tasks_config, num_options);
+
+		cpu_set_t my_set;
+		sched_getaffinity(0,sizeof(my_set),&my_set);
+		printf("PARENT ON CPU:0x%x\n",my_set);
+		//print_kris_tasks_config(kris_tasks_config, num_options);
 		//Fork off for the new sub-task
 		kris_tasks_pid[i]=fork();
 		//Only let parent execute continue, while children 
@@ -208,18 +220,26 @@ int main(int argc, char *argv[])
 			perror("Error: execv\n");
 			exit(0);
 		}
-		printf("about to sleep 1\n");
+		printf("PIDD:%d\n",kris_tasks_pid[i]);
+		//printf("about to sleep 1\n");
+		printf("-----------------------\n");
 		sleep(1);
-		printf("slept, reruning next sub-task\n");
+		//printf("slept, reruning next sub-task\n");
 	}//end for all tasks
-	
 	start_simulation();  //time zero of the execution
-
+printf("issssssfsdf\n");
+#if 0
+sleep(10);
+printf("DddddddSsdfsd\n");
+//#if 0
 	printf("Waiting for %d tasks done", kris_tasks_num);
 	for(i=0;i<kris_tasks_num;i++){
 		wait(NULL);
+printf("WAIT issssssfsdf\n");
 	}
+
 	printf("All tasks have finished properly!!!\n");
 
+#endif
 	return 0;
 }//END MAIN
